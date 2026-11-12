@@ -57,6 +57,7 @@
   .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:16px;list-style:none;padding:0;margin:0}
   .card{background:var(--panel);border:1px solid var(--line);padding:22px;display:flex;flex-direction:column;gap:14px;position:relative}
   .card::before{content:"";position:absolute;top:0;left:0;width:48px;height:3px;background:var(--accent)}
+  .shot{display:block;width:calc(100% + 44px);margin:-22px -22px 4px;height:auto;aspect-ratio:3/2;object-fit:cover;object-position:top left;border-bottom:1px solid var(--line);background:#000}
   .card h3{font:700 28px/1 var(--display);text-transform:uppercase;margin:0}
   .meta{display:flex;flex-wrap:wrap;gap:6px;font:500 12px var(--mono)}
   .tag{border:1px solid var(--line);padding:3px 8px;color:var(--muted)}
@@ -132,8 +133,8 @@
       <p class="sub">Builds are not code-signed yet, so your OS may complain the first time.</p>
       <details>
         <summary>macOS says the plugin “is damaged” or “can't be opened”</summary>
-        <p>Copy the .vst3 / .component to your plugin folder, then run this in Terminal (adjust the name):</p>
-        <pre>xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/Facet.vst3</pre>
+        <p>Some plugins ship an installer that handles this for you. Otherwise, copy the .vst3 / .component to your plugin folder, then run this in Terminal (adjust the name):</p>
+        <pre>xattr -dr com.apple.quarantine ~/Library/Audio/Plug-Ins/VST3/"LPF Facet.vst3"</pre>
       </details>
       <details>
         <summary>Windows shows “Windows protected your PC”</summary>
@@ -166,25 +167,25 @@ const DONATE = [
 ];
 const PLUGINS = [
   {
-    name: "Facet", repo: "LPF_Facet", added: "2026-11-12", version: "0.1",
-    status: "beta",
-    blurb: "Granular effect and instrument with up to four independent stereo playheads, each with its own multichannel output.",
+    name: "Facet", repo: "LPF_Facet", added: "2026-11-12", version: "0.3.0",
+    status: "beta", image: "img/facet.webp",
+    blurb: "Granular effect and instrument built on a rolling capture buffer. Up to four stereo playheads, each with its own outputs.",
     formats: ["VST3", "AU", "Standalone"], platforms: ["Mac", "Windows"],
-    files: { Mac: "Facet-macOS.zip", Windows: "Facet-Windows.zip" }
+    files: { Mac: "LPF-Facet-macOS.zip", Windows: "LPF-Facet-Windows.zip" }
   },
   {
-    name: "Sediments", repo: "LPF_Sediments", added: "2026-11-12", version: "0.1",
-    status: "soon",
-    blurb: "Instrument between latent terrain (RAVE) and concatenative synthesis. Spatialised grains, Ambisonics up to 3rd order.",
-    formats: ["VST3", "Ambisonics"], platforms: ["Mac", "Windows"],
-    files: {}
+    name: "Sediments", repo: "LPF_Sediments", added: "2026-11-12", version: "0.9.2",
+    status: "beta", image: "img/sediments.webp",
+    blurb: "Your recordings settle on a 2D map. Explore it between latent terrain (RAVE) and concatenative synthesis, with or without a model.",
+    formats: ["VST3", "AU", "Ambisonics"], platforms: ["Mac", "Windows"],
+    files: { Mac: "Sediments-macOS.zip", Windows: "Sediments-Windows.zip" }
   },
   {
-    name: "Conversations", repo: "LPF_Conversations", added: "2026-11-10", version: "0.1",
-    status: "beta",
-    blurb: "Listens to your audio in real time and answers in MIDI. An improvising partner that runs fully offline.",
-    formats: ["VST3", "AU", "MIDI out"], platforms: ["Mac", "Windows"],
-    files: { Mac: "Conversations-macOS.zip", Windows: "Conversations-Windows.zip" }
+    name: "Conversations", repo: "LPF_Conversations", added: "2026-11-10", version: "0.6.1",
+    status: "beta", image: "img/conversations.webp",
+    blurb: "Listens to what you play (instrument, voice, birds or MIDI) and answers in MIDI. An improvising partner that runs fully offline.",
+    formats: ["VST3", "AU", "Standalone", "MIDI out"], platforms: ["Mac", "Windows", "Linux"],
+    files: { Mac: "LPF-Conversations-macOS.zip", Windows: "LPF-Conversations-Windows.zip", Linux: "LPF-Conversations-Linux.zip" }
   }
 ];
 /* ============================================================ */
@@ -212,15 +213,16 @@ function render(){
     .filter(p => active === "All" || p.platforms.includes(active))
     .sort((a,b) => b.added.localeCompare(a.added));
   grid.innerHTML = list.map(p => `
-    <li class="card">
+    <li class="card" data-repo="${esc(p.repo)}">
+      ${p.image ? `<img class="shot" src="${esc(p.image)}" alt="${esc(p.name)} interface" loading="lazy" width="1200" height="800">` : ""}
       <h3>${esc(p.name)}</h3>
       <div class="meta">
         <span class="status ${p.status}">${STATUS[p.status]}</span>
-        <span class="tag">v${esc(p.version)}</span>
+        <span class="tag ver">v${esc(p.version)}</span>
         ${p.formats.map(f => `<span class="tag">${esc(f)}</span>`).join("")}
       </div>
       <p>${esc(p.blurb)}</p>
-      <div class="row">${dlButtons(p)}</div>
+      <div class="row dl">${dlButtons(p)}</div>
       <a class="src" href="https://github.com/${GITHUB_USER}/${p.repo}">Source &amp; changelog →</a>
     </li>`).join("");
   count.textContent = `${list.length} plugin${list.length>1?"s":""} shown`;
@@ -238,6 +240,28 @@ document.getElementById("donateLinks").innerHTML =
   DONATE.map(d => `<a class="btn ${d.primary?'primary':''}" href="${d.url}">${esc(d.label)}</a>`).join("");
 document.getElementById("y").textContent = new Date().getFullYear();
 buildFilters(); render();
+
+/* Live lookup: newest release version + exact asset links from GitHub.
+   If it fails (offline, rate limit), the values above are used. */
+const OS_MATCH = { Mac: /mac/i, Windows: /win/i, Linux: /linux/i };
+PLUGINS.forEach(p => {
+  fetch(`https://api.github.com/repos/${GITHUB_USER}/${p.repo}/releases/latest`)
+    .then(r => r.ok ? r.json() : Promise.reject())
+    .then(rel => {
+      p.version = String(rel.tag_name || p.version).replace(/^v/, "");
+      const files = {};
+      for (const os of Object.keys(OS_MATCH)) {
+        const a = (rel.assets || []).find(x => OS_MATCH[os].test(x.name));
+        if (a) files[os] = a.name;
+      }
+      if (Object.keys(files).length) {
+        p.files = files;
+        p.platforms = [...new Set([...p.platforms, ...Object.keys(files)])];
+      }
+      buildFilters(); render();
+    })
+    .catch(() => {});
+});
 </script>
 </body>
 </html>
