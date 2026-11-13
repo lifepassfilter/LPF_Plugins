@@ -4,7 +4,8 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Life Pass Filter — Free Plugins</title>
-<meta name="description" content="Free audio plugins and instruments by Life Pass Filter. Download, play, donate if you like.">
+<meta name="description" content="Tools for careful listening. Free audio plugins and instruments by Life Pass Filter.">
+<link rel="icon" type="image/png" href="img/logo-mark.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -28,13 +29,18 @@
   .wrap{max-width:1080px;margin:0 auto;padding:0 20px}
 
   header{border-bottom:1px solid var(--line)}
-  .top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 0}
+  .top{display:flex;align-items:center;justify-content:space-between;gap:16px;padding-top:18px;padding-bottom:18px}
   .brand{font:700 15px/1 var(--display);letter-spacing:.18em;text-transform:uppercase;text-decoration:none;display:flex;align-items:center;gap:10px}
-  .brand i{display:inline-block;width:14px;height:14px;background:var(--accent);clip-path:polygon(0 0,100% 0,100% 100%)}
+  .logo{filter:invert(1)}
+  @media (prefers-color-scheme: light){ .logo{filter:none} }
+  .brand img{width:34px;height:auto}
+  .brand{white-space:nowrap}
+  @media (max-width:520px){ nav a{margin-left:12px;font-size:13px} nav a:last-child{display:none} .hero{padding-top:40px} }
+
   nav a{font:500 14px var(--mono);color:var(--muted);text-decoration:none;margin-left:18px}
   nav a:hover{color:var(--text)}
 
-  .hero{padding:72px 0 48px}
+  .hero{padding-top:72px;padding-bottom:48px}
   .kicker{font:500 13px var(--mono);color:var(--accent);letter-spacing:.12em;text-transform:uppercase;margin:0 0 14px}
   h1{font:700 clamp(40px,8vw,84px)/.95 var(--display);text-transform:uppercase;letter-spacing:-.01em;margin:0 0 22px}
   h1 span{color:var(--accent)}
@@ -88,7 +94,7 @@
 
 <header>
   <div class="wrap top">
-    <a class="brand" href="https://lifepassfilter.com"><i aria-hidden="true"></i>Life Pass Filter</a>
+    <a class="brand" href="https://lifepassfilter.com"><img class="logo" src="img/logo-mark.png" alt="" width="225" height="240">Life Pass Filter</a>
     <nav aria-label="Main">
       <a href="#plugins">Plugins</a><a href="#support">Support</a><a href="#help">Install help</a>
     </nav>
@@ -97,12 +103,14 @@
 
 <main>
   <div class="wrap hero">
+    <div>
     <p class="kicker">Free · Open source · Made in Lille</p>
-    <h1>Tools for<br><span>listening</span> differently</h1>
-    <p class="lede">Audio plugins and instruments born from field recording, bioacoustics and immersive sound work. Free to download. If one of them ends up in your music, you can chip in.</p>
+    <h1>Tools for<br><span>careful</span><br>listening</h1>
+    <p class="lede">Plugins and instruments born from my audio needs and my passion for sound design and field recording. Hopefully useful for you too. Free to download. Chip in if you like it!</p>
     <div class="row">
       <a class="btn primary" href="#plugins">Browse plugins</a>
       <a class="btn" id="donateTop" href="#support">Support the work</a>
+    </div>
     </div>
   </div>
 
