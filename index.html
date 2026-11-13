@@ -86,6 +86,8 @@
   pre{font:400 14px var(--mono);background:var(--panel);border:1px solid var(--line);padding:12px;overflow-x:auto;color:var(--text)!important}
 
   footer{border-top:1px solid var(--line);padding:28px 0 48px;color:var(--muted);font:400 14px var(--mono)}
+  .credits{margin:0;padding-left:20px;color:var(--muted)}
+  .credits li{margin:0 0 10px}
   .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
 </style>
 </head>
@@ -96,7 +98,7 @@
   <div class="wrap top">
     <a class="brand" href="https://lifepassfilter.com"><img class="logo" src="img/logo-mark.png" alt="" width="225" height="240">Life Pass Filter</a>
     <nav aria-label="Main">
-      <a href="#plugins">Plugins</a><a href="#support">Support</a><a href="#help">Install help</a>
+      <a href="#plugins">Plugins</a><a href="#support">Support</a><a href="#help">Help</a><a href="#credits">Credits</a>
     </nav>
   </div>
 </header>
@@ -137,8 +139,27 @@
 
   <section id="help" aria-labelledby="help-h">
     <div class="wrap">
-      <h2 id="help-h">Install help</h2>
-      <p class="sub">Builds are not code-signed yet, so your OS may complain the first time.</p>
+      <h2 id="help-h">Help &amp; FAQ</h2>
+      <p class="sub">Installing, choosing a host, and what to expect.</p>
+      <details>
+        <summary>Is it safe?</summary>
+        <p>The plugins run entirely on your computer: they never connect to the internet and send nothing anywhere. The full source code is public on GitHub, and every download is built automatically from that code by GitHub, not on a personal machine.</p>
+        <p>Each release includes a <code>SHA256SUMS.txt</code> file and a GitHub build attestation, so you can check that a file really comes from this code:</p>
+        <pre>gh attestation verify LPF-Facet-macOS.zip -R lifepassfilter/LPF_Facet</pre>
+        <p>The builds are not signed by Apple or Microsoft yet, which is why your system warns you the first time (see below). Only download them from this page or the GitHub releases.</p>
+      </details>
+      <details>
+        <summary>Which music software do they work in?</summary>
+        <p>They are made and tested in <strong>Reaper</strong> first, on Mac and Windows. They are standard VST3 plugins (plus AU on Mac), so most hosts should load them, but some features depend on what your host allows (next question). Sediments is designed around Reaper: its gestures follow Reaper's tempo and transport, and its 16 outputs are easiest to route there.</p>
+      </details>
+      <details>
+        <summary>My DAW doesn't handle MIDI and audio in the same plugin</summary>
+        <p>Some plugins here mix audio and MIDI in ways not every host supports:</p>
+        <p><strong>Facet</strong> is an audio effect that also accepts MIDI notes (MIDI and Both modes). Ableton Live and Logic don't send MIDI to audio effects, so these modes need Reaper, Bitwig or another host that does. The Audio mode works everywhere.</p>
+        <p><strong>Conversations</strong> listens to audio and sends MIDI out. Ableton Live can't route MIDI coming out of a plugin: use the standalone app and send its MIDI to a virtual port (IAC on Mac, loopMIDI on Windows), then pick that port as the input of your synth track.</p>
+        <p><strong>Sediments</strong> can output up to 16 channels (speaker arrays, Ambisonics). Hosts limited to stereo tracks will only give you the first two.</p>
+        <p>In Reaper, all of this works out of the box.</p>
+      </details>
       <details>
         <summary>macOS says the plugin “is damaged” or “can't be opened”</summary>
         <p>Some plugins ship an installer that handles this for you. Otherwise, copy the .vst3 / .component to your plugin folder, then run this in Terminal (adjust the name):</p>
@@ -152,6 +173,25 @@
         <summary>Where do I report a bug or ask for a feature?</summary>
         <p>Each plugin has a “Source” link: open an issue on its GitHub page.</p>
       </details>
+      <details>
+        <summary>Can I use RAVE models in commercial music?</summary>
+        <p>Sediments doesn't include any model: you load your own. Many free RAVE models, including the IRCAM and Intelligent Instruments Lab collections, are licensed for non-commercial use only (CC BY-NC 4.0). Check the licence of each model before using it in paid work, or train your own.</p>
+      </details>
+    </div>
+  </section>
+
+  <section id="credits" aria-labelledby="credits-h">
+    <div class="wrap">
+      <h2 id="credits-h">Credits</h2>
+      <p class="sub">These tools stand on open-source work by others. Thank you.</p>
+      <ul class="credits">
+        <li><a href="https://juce.com">JUCE</a>: the framework behind all three plugins (AGPLv3 / JUCE licence), including the <a href="https://github.com/steinbergmedia/vst3sdk">Steinberg VST3 SDK</a> it ships with.</li>
+        <li><a href="https://pytorch.org">LibTorch (PyTorch)</a>: runs the neural models in Sediments (BSD-3-Clause).</li>
+        <li><a href="https://github.com/acids-ircam/RAVE">RAVE</a> by the ACIDS team at IRCAM: the model format Sediments loads (exported for <a href="https://github.com/acids-ircam/nn_tilde">nn~</a>). No RAVE code or model is included.</li>
+        <li><a href="https://jasper-zheng.github.io/nn_terrain/">nn.terrain</a> by Jasper Shuoyang Zheng and <a href="https://ismm.ircam.fr/catart/">CataRT</a> by IRCAM: the ideas Sediments grew from. No code from either is included.</li>
+        <li>YIN pitch detection (de Cheveigné &amp; Kawahara, 2002): the method Conversations uses to hear pitch, implemented from the paper.</li>
+        <li>Fonts under the SIL Open Font License: <a href="https://www.brailleinstitute.org/freefont/">Atkinson Hyperlegible</a> (Braille Institute), <a href="https://opendyslexic.org">OpenDyslexic</a> (Abbie Gonzalez), <a href="https://fonts.google.com/specimen/Rajdhani">Rajdhani</a> (Indian Type Foundry), <a href="https://fonts.google.com/specimen/Space+Mono">Space Mono</a> (Colophon), and on this site <a href="https://fonts.google.com/specimen/Chakra+Petch">Chakra Petch</a> (Cadson Demak) and <a href="https://github.com/IBM/plex">IBM Plex</a> (IBM).</li>
+      </ul>
     </div>
   </section>
 </main>
